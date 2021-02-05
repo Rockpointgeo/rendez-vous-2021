@@ -1,0 +1,14 @@
+name: rdz-sean
+
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8.6
+  - numpy=1.19.5
+  - scipy=1.6.0
+  - matplotlib=3.3.3
+  - jupyterlab=3.0.5
+  - simpeg=0.14.3
+  - ipywidgets=7.6.3
+  - ipympl=0.6.2
