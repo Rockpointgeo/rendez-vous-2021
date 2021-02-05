@@ -137,13 +137,15 @@ def setup_and_run_std_inv(mesh, dc_survey, dc_data, std_dc, conductivity_map,
 
 
 def plot_inv_result(it, mesh, mrec, plotting_map, dpred, dobs, std_err,
-                    core_defn=None, locations=None, clim=None, grid=False,
-                    ):
+                    x_loc, z_loc, core_defn=None, locations=None, clim=None,
+                    grid=False, data_lim=None):
     phid = (dobs - dpred)/std_err
+    xy_data = np.c_[x_loc, z_loc, phid]
     fig = plt.figure(figsize=(16, 8))
     gs = GridSpec(2, 4, figure=fig)
     ax1 = fig.add_subplot(gs[0, :-1])
     ax2 = fig.add_subplot(gs[1, :-1])
+    ax3 = fig.add_subplot(gs[1, -1])
     plot_model(mesh,
                mrec,
                plotting_map,
@@ -154,17 +156,15 @@ def plot_inv_result(it, mesh, mrec, plotting_map, dpred, dobs, std_err,
                grid=grid,
                title=f"Recovered Model. Iteration:{it}",
                cbar_title="log10 Conductivity (S/m)")
-    d_phid = ax2.scatter(mid_x, mid_z, c=phid_it)
-    c_phid = fig.colorbar(d_phid, ax=ax2, orientation='vertical')
-    ax2.set_xlim(core_x_min, core_x_max)
-    ax2.set_ylim(core_z_min, core_z_max)
-    ax2.axis('equal')
-    ax2.set_title(f"Data misfit {it}")
-    ax2.set_xlabel('X')
-    ax2.set_ylabel('a (50m) x n')
-    ax3 = fig.add_subplot(gs[1,-1])
-    h_dobs = ax3.hist(phid_it, bins=25)
-    ax3.set_title('$\phi_d$')
+    plot_data(xy_data,
+              data_lim=data_lim,
+              fig_ax=(fig, (ax2, ax3)),
+              data_title=f"Normalized Data difference. Iteration:{it}",
+              x_label='X',
+              y_label='Z',
+              cbar_title='no units',
+              hist_title='Data diff.'
+              )
     plt.show()
 
 
@@ -234,18 +234,28 @@ def plot_data(xy_data, data_lim=None, fig_ax=None, data_title='Data',
     return
 
 
-def plot_hist():
-    pass
+def plot_conv_curve(phid, phim, beta, it=None):
+    num_it = len(phid)
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
+    ax1.semilogy(np.linspace(1, num_it, num_it), phid, 'ko-')
+    ax1.set_xlabel("Iteration")
+    ax2.plot(np.linspace(1, num_it, num_it), phim, 'ko-')
+    ax2.set_xlabel("Iteration")
+    ax3.semilogy(np.linspace(1, num_it, num_it), beta, 'ko-')
+    ax3.set_xlabel("Iteration")
+    if it is not None:
+        ax1.semilogy(it, phid[it - 1], 'ro')
+        ax2.plot(it, phim[it - 1], 'ro')
+        ax3.semilogy(it, beta[it - 1], 'ro')
 
-    return
-
-
-def plot_conv_curve():
-    # num_it = len(out_5_per.phi_d)
-    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-    # ax1.semilogy(np.linspace(1, num_it, num_it), out_5_per.phi_d,'ko-')
-    # ax2.plot(np.linspace(1, num_it, num_it), out_5_per.phi_m,'ko-')
-    pass
+    if it is not None:
+        ax1.set_title(f"Data Misfit. Iteration {it}")
+        ax2.set_title(f"Model norm. Iteration {it}")
+        ax3.set_title(f"Beta. Iteration {it}")
+    else:
+        ax1.set_title("Data Misfit.")
+        ax2.set_title("Model norm.")
+        ax3.set_title("Beta")
     return
 
 

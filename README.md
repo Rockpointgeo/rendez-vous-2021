@@ -7,7 +7,7 @@ This is the starting point for an ongoing discussion and is in no way a finished
 
 ### Summary document
 
-The discussion will follow this [article]()
+The discussion will follow this [article](https://curvenote.com/@swalker/swung-rendez-vous-noise-estimates/discussion-notes)
 
 ### Conda Setup
 
